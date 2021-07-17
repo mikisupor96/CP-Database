@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Company Database</title>
+
+    <link rel="stylesheet" href="./assets/css/bootstrap.min.css" />
+  </head>
+  <body>
+    <!-- Info modal -->
+    <div class="modal" id="infoModal" tabindex="-1" role="dialog">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title">CMS Company Directory</h4>
+            <button
+              type="button"
+              class="close"
+              data-dismiss="modal"
+              aria-label="Close"
+            >
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <h5 class="font-weight-bold">Search For Users</h5>
+            <p>
+              - As a regular user you are able to search for other users using
+              one of these categories:
+            </p>
+            <ul>
+              <li>first name</li>
+              <li>last name</li>
+              <li>job title</li>
+              <li>department</li>
+              <li>locations</li>
+            </ul>
+            <p>-There are currently only 5 locations to choose from:</p>
+            <ul>
+              <li>London</li>
+              <li>New York</li>
+              <li>Paris</li>
+              <li>Munich</li>
+              <li>Rome</li>
+            </ul>
+            <p>
+              - To perform search, choose from a catefory from the select on the
+              left. If the field is left empty, it will return all the personnel
+              that matches that category.
+            </p>
+            <h5 class="font-weight-bold">Add new user</h5>
+            <p>You can only add new users or departments as an admin.</p>
+            <p>
+              Press the green <b>+</b> button next to the <b>search</b> button
+              and fill in the required fields. You will be prompted with a
+              success message on completion or an error on failure.
+            </p>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-dismiss="modal"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Add new user modal -->
+    <div class="modal" id="addUserModal" tabindex="-1" role="dialog">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title">Add Employee</h4>
+            <button
+              type="button"
+              class="close"
+              data-dismiss="modal"
+              aria-label="Close"
+            >
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <form method="post" class="createUser needs-validation">
+              <div class="form-group">
+                <label for="firstName">First name</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="firstName"
+                  placeholder="John"
+                  name="firstName"
+                  required
+                />
+              </div>
+              <div class="form-group">
+                <label for="lastName">Last name</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="lastName"
+                  placeholder="Doe"
+                  name="lastName"
+                  required
+                />
+              </div>
+              <div class="form-group">
+                <label for="email">Email address</label>
+                <input
+                  type="email"
+                  class="form-control"
+                  id="email"
+                  placeholder="name@example.com"
+                  name="email"
+                  required
+                />
+              </div>
+              <div class="form-group">
+                <label for="department"
+                  >Department
+                  <a
+                    href="#addDepartment"
+                    id="newDepBtn"
+                    class="btn btn-primary"
+                    data-toggle="collapse"
+                  >
+                    +
+                  </a></label
+                >
+                <select
+                  class="form-control"
+                  id="departmentSelect"
+                  name="department"
+                ></select>
+                <input
+                  id="addDepartment"
+                  type="text"
+                  class="form-control collapse"
+                  placeholder="IT"
+                />
+              </div>
+              <div class="form-group">
+                <label for="location">Location </label>
+                <select
+                  class="form-control collapse"
+                  id="addLocation"
+                  name="locationID"
+                >
+                  <option value="1">London</option>
+                  <option value="2">New York</option>
+                  <option value="3">Paris</option>
+                  <option value="4">Munich</option>
+                  <option value="5">Rome</option>
+                </select>
+              </div>
+
+              <div class="modal-footer">
+                <button type="submit" value="Submit" class="btn btn-success">
+                  Submit
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-secondary"
+                  data-dismiss="modal"
+                >
+                  Close
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Edit user modal -->
+    <div id="editUserModal" class="modal" tabindex="-1" role="dialog">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title">Edit Employee</h4>
+            <button
+              type="button"
+              class="close"
+              data-dismiss="modal"
+              aria-label="Close"
+            >
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <form method="post" class="editUser needs-validation">
+              <div class="form-group">
+                <label for="firstName">First name</label>
+                <input
+                  id="editFirstName"
+                  type="text"
+                  class="form-control"
+                  name="firstName"
+                  required
+                />
+              </div>
+              <div class="form-group">
+                <label for="lastName">Last name</label>
+                <input
+                  id="editLastName"
+                  type="text"
+                  class="form-control"
+                  name="lastName"
+                  required
+                />
+              </div>
+              <div class="form-group">
+                <label for="email">Email address</label>
+                <input
+                  id="editEmail"
+                  type="email"
+                  class="form-control"
+                  name="email"
+                  required
+                />
+              </div>
+
+              <div class="modal-footer">
+                <button type="submit" value="Submit" class="btn btn-success">
+                  Submit
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-secondary"
+                  data-dismiss="modal"
+                >
+                  Close
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Nav bar -->
+    <div class="container">
+      <nav class="navbar navbar-light bg-light">
+        <form class="form-inline">
+          <select class="custom-select mr-1" id="searchOption">
+            <option selected>Category</option>
+            <option value="firstName">First Name</option>
+            <option value="lastName">Last Name</option>
+            <option value="email">Email</option>
+            <option value="department">Department</option>
+            <option value="location">Location</option>
+          </select>
+          <input
+            id="searchBox"
+            class="form-control mr-1"
+            type="search"
+            placeholder="Search"
+            aria-label="Search"
+          />
+          <button id="searchButton" class="btn btn-success mr-1" type="submit">
+            Search
+          </button>
+          <button
+            id="addButton"
+            class="btn btn-primary"
+            type="submit"
+            data-toggle="modal"
+            data-target="#addUserModal"
+          >
+            +
+          </button>
+        </form>
+      </nav>
+      <div class="result"></div>
+    </div>
+
+    <script src="./assets/javascript/jquery.js"></script>
+    <script src="./assets/javascript/popper.js"></script>
+    <script src="./assets/javascript/bootstrap.min.js"></script>
+
+    <script type="module" src="./script.js"></script>
+  </body>
+</html>
