@@ -1,5 +1,5 @@
 # Company CMS
-* For all your data entry needs *
+*For all your data entry needs*
 
 ## What is this project about?
 
