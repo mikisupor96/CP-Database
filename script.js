@@ -12,7 +12,6 @@ import populateDepartments from "./libs/js/populateDepartments.js";
 import errorResult from "./libs/js/Dom/errorResult.js";
 
 $(document).ready(() => {
-  console.log("I AM NEW");
   $("form").submit(() => {
     return false;
   });
