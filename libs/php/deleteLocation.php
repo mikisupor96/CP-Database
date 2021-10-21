@@ -31,9 +31,9 @@ if (intval($row["COUNT(*)"]) !== 0) {
     response($conn, "200", "ok", "success", (microtime(true) - $executionStartTime) / 1000 . " ms", false);
 } else {
     $query = "
-        DELETE FROM location l
+        DELETE FROM location 
         WHERE 
-            l.name='{$location}' 
+            name='{$location}' 
 
     ";
 
