@@ -1,4 +1,5 @@
 const deleteDepartment = (department, uiElement) => {
+  console.log(department);
   $.ajax({
     url: "./libs/php/deleteDepartment.php",
     type: `GET`,
