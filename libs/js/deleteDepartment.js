@@ -7,6 +7,7 @@ const deleteDepartment = (department, uiElement) => {
       department: department,
     },
     success: (result) => {
+      $(".alert").remove();
       if (result["data"]) {
         $(".delete").prepend(`
         <div class="alert alert-success" role="alert">

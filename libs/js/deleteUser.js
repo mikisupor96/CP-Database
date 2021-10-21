@@ -9,6 +9,7 @@ const deleteUser = (firstName, lastName, email) => {
       email: email,
     },
     success: () => {
+      $(".alert").remove();
       $(".delete").prepend(`
           <div class="alert alert-success" role="alert">
             User deleted!

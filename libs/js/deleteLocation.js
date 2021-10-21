@@ -7,6 +7,7 @@ const deleteLocation = (location, uiElement) => {
       location: location,
     },
     success: (result) => {
+      $(".alert").remove();
       if (result["data"]) {
         $(".delete").prepend(`
           <div class="alert alert-success" role="alert">
