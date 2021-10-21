@@ -30,9 +30,9 @@ if (intval($row["COUNT(*)"]) !== 0) {
     response($conn, "200", "ok", "success", (microtime(true) - $executionStartTime) / 1000 . " ms", false);
 } else {
     $query = "
-        DELETE FROM department d
+        DELETE FROM department 
         WHERE 
-            d.name='{$department}' 
+            name='{$department}' 
 
     ";
 
