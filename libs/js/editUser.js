@@ -4,7 +4,8 @@ const editUser = (
   email,
   newFirstName,
   newLastName,
-  newEmail
+  newEmail,
+  newDepartment
 ) => {
   $.ajax({
     url: "./libs/php/editUser.php",
@@ -17,10 +18,27 @@ const editUser = (
       newFirstName: newFirstName,
       newLastName: newLastName,
       newEmail: newEmail,
+      newDepartment: newDepartment,
     },
-    success: () => {},
+    success: (result) => {
+      $(".alert").remove();
+
+      if (result["data"]) {
+        $(".editUser").prepend(`
+          <div class="alert alert-success" role="alert">
+            User Edited Successfully.
+          </div>
+        `);
+      } else {
+        $(".editUser").prepend(`
+        <div class="alert alert-danger" role="alert">
+          Something went wrong, please check your details.
+        </div>
+      `);
+      }
+    },
     error: (xhr) => {
-      // console.log(xhr["responseText"]);
+      console.log(xhr["responseText"]);
     },
   });
 };
