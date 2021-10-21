@@ -13,7 +13,7 @@ if (mysqli_connect_errno()) {
 	exit;
 }
 
-$query = 'SELECT id, name, locationID FROM department';
+$query = 'SELECT * FROM department';
 
 $result = $conn->query($query);
 
@@ -23,7 +23,7 @@ if (!$result) {
 }
 
 while ($row = mysqli_fetch_assoc($result)) {
-	$data[] = $row["name"];
+	$data[] = $row;
 }
 
 response($conn, "200", "ok", "success", (microtime(true) - $executionStartTime) / 1000 . " ms", $data);
