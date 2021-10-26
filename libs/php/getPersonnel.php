@@ -1,4 +1,10 @@
 <?php
+
+// https://localhost/libs/php/getAll.php
+
+// ini_set('display_errors', 'On');
+// error_reporting(E_ALL);
+
 $executionStartTime = microtime(true);
 
 include("./static/config.php");
@@ -15,17 +21,28 @@ if (mysqli_connect_errno()) {
     exit;
 }
 
-$query = "
-SELECT p.lastName, p.firstName, p.jobTitle, p.email, d.name as department,d.id as departmentID, l.name as location 
-FROM personnel p LEFT JOIN department d ON (d.id = p.departmentID) 
-LEFT JOIN location l ON (l.id = d.locationID)
-WHERE 
-            p.firstName='{$value}' OR
-            p.lastName='{$value}' OR
-            p.email='{$value}' OR
-            d.name='{$value}' OR 
-            l.name='{$value}' 
-ORDER BY p.lastName, p.firstName, d.name, l.name";
+if ($value) {
+    $query = "
+        SELECT p.lastName, p.firstName, p.jobTitle, p.email, p.id, d.name as department,d.id as departmentID, l.name as location 
+        FROM personnel p LEFT JOIN department d ON (d.id = p.departmentID) 
+        LEFT JOIN location l ON (l.id = d.locationID)
+        WHERE 
+                    p.firstName='{$value}' OR
+                    p.lastName='{$value}' OR
+                    p.email='{$value}' OR
+                    d.name='{$value}' OR 
+                    l.name='{$value}'
+        ORDER BY p.lastName, p.firstName, d.name, l.name
+    ";
+} else {
+    $query = "
+        SELECT p.lastName, p.firstName, p.jobTitle, p.email, p.id, d.name as department, d.id as departmentID, l.name as location 
+        FROM personnel p LEFT JOIN department d ON (d.id = p.departmentID) 
+        LEFT JOIN location l ON (l.id = d.locationID) 
+        ORDER BY p.lastName, p.firstName, d.name, l.name
+    ";
+}
+
 
 $result = $conn->query($query);
 

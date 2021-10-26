@@ -1,4 +1,10 @@
 <?php
+// example use from browser
+// http://localhost/libs/php/addNewLocation.php?location=Singapore
+
+// ini_set('display_errors', 'On');
+// error_reporting(E_ALL);
+
 $executionStartTime = microtime(true);
 
 include("../php/static/config.php");
@@ -13,57 +19,21 @@ if (mysqli_connect_errno()) {
     exit;
 }
 
-function checkLocationValue()
-{
-    global $conn, $executionStartTime, $location;
+// Adds new user department
+$newLocationID = getNextID("location;");
 
+// Department insert
+$query = "
+    INSERT INTO location (id, name)
+    VALUES (
+        '$newLocationID',
+        '$location'
+    );
+";
 
-    $query = "
-        SELECT name
-        FROM location   
-    ";
+$conn->query($query);
 
-
-    $result = $conn->query($query);
-
-    if (!$result) {
-        response($conn, "400", mysqli_errno($conn),  mysqli_error($conn), (microtime(true) - $executionStartTime) / 1000 . " ms", []);
-        exit;
-    }
-
-    $state = true;
-
-    while ($row = mysqli_fetch_assoc($result)) {
-        if ($row["name"] === $location) {
-            $state = false;
-        }
-    }
-
-    if ($state === true) {
-        addLocation();
-    } else {
-        response($conn, "409", "Conflict", "fail", (microtime(true) - $executionStartTime) / 1000 . " ms", false);
-    }
-}
-
-function addLocation()
-{
-    global $conn, $executionStartTime, $location;
-
-    $newLocationID = getNextID("location;");
-
-    $query = "
-        INSERT INTO location (id, name)
-        VALUES (
-            '$newLocationID',
-            '$location'
-        );
-    ";
-
-    $conn->query($query);
-
-    response($conn, "200", "ok", "success", (microtime(true) - $executionStartTime) / 1000 . " ms", true);
-}
+response($conn, "200", "ok", "success", (microtime(true) - $executionStartTime) / 1000 . " ms", true);
 
 function getNextID($table)
 {
@@ -84,5 +54,3 @@ function getNextID($table)
 
     return $data["MAX(id)"] + 1;
 }
-
-checkLocationValue();

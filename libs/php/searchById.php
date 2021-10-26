@@ -1,9 +1,9 @@
 <?php
 
-// remove next two lines for production
+// https://localhost/libs/php/getAll.php
 
-ini_set('display_errors', 'On');
-error_reporting(E_ALL);
+// ini_set('display_errors', 'On');
+// error_reporting(E_ALL);
 
 $executionStartTime = microtime(true);
 
@@ -12,8 +12,9 @@ include("./static/response.php");
 
 header('Content-Type: application/json; charset=UTF-8');
 
-// CONNECT TO DB
-$conn = new mysqli($cd_host, $cd_user, $cd_password, $cd_dbname, $cd_port, $cd_socket);
+$id = $_REQUEST["id"];
+
+$conn = new mysqli($cd_host, $cd_user, $cd_password, $cd_dbname, $cd_port);
 
 if (mysqli_connect_errno()) {
     response($conn, "300", mysqli_connect_errno(), mysqli_connect_error(), (microtime(true) - $executionStartTime) / 1000 . " ms", []);
@@ -21,12 +22,15 @@ if (mysqli_connect_errno()) {
 }
 
 $query = "
-    SELECT * 
-    FROM location
-    ORDER BY name
+    SELECT p.lastName, p.firstName, p.jobTitle, p.email, d.name as department, d.id as departmentID, l.name as location 
+    FROM personnel p LEFT JOIN department d ON (d.id = p.departmentID) 
+    LEFT JOIN location l ON (l.id = d.locationID)
+    WHERE 
+        p.id='{$id}'
+    ORDER BY p.lastName, p.firstName, d.name, l.name
 ";
 
-// QUERY DB
+
 $result = $conn->query($query);
 
 if (!$result) {
@@ -34,10 +38,8 @@ if (!$result) {
     exit;
 }
 
-// FETCH DATA FROM QUERY
 while ($row = mysqli_fetch_assoc($result)) {
-    $data[] = $row;
+    $data = $row;
 }
 
-// OUTPUT RESULT 
 response($conn, "200", "ok", "success", (microtime(true) - $executionStartTime) / 1000 . " ms", $data);

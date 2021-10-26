@@ -7,8 +7,10 @@
     <title>Company Database</title>
 
     <link rel="stylesheet" href="./assets/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="./style.css" />
   </head>
-  <body>
+  <body id="preloader">
+    <!-- Add new user modal -->
     <div class="modal" id="addUserModal" tabindex="-1" role="dialog">
       <div class="modal-dialog" role="document">
         <div class="modal-content">
@@ -84,6 +86,7 @@
       </div>
     </div>
 
+    <!-- Add new department modal -->
     <div class="modal" id="addDepartmentModal" tabindex="-1" role="dialog">
       <div class="modal-dialog" role="document">
         <div class="modal-content">
@@ -116,11 +119,9 @@
                 <label for="locationOfDepartment">Location </label>
                 <select
                   class="form-control"
-                  name="department"
                   id="locationOfDepartment"
                   placeholder="Malaysia"
                   name="locationOfDepartment"
-                  required
                 ></select>
               </div>
 
@@ -142,6 +143,7 @@
       </div>
     </div>
 
+    <!-- Add new location modal -->
     <div class="modal" id="addLocationModal" tabindex="-1" role="dialog">
       <div class="modal-dialog" role="document">
         <div class="modal-content">
@@ -188,6 +190,7 @@
       </div>
     </div>
 
+    <!-- Edit user modal -->
     <div id="editUserModal" class="modal" tabindex="-1" role="dialog">
       <div class="modal-dialog" role="document">
         <div class="modal-content">
@@ -260,11 +263,12 @@
       </div>
     </div>
 
+    <!-- Edit department modal -->
     <div id="editDepModal" class="modal" tabindex="-1" role="dialog">
       <div class="modal-dialog" role="document">
         <div class="modal-content">
           <div class="modal-header">
-            <h4 class="modal-title">Edit Department</h4>
+            <h4 class="modal-title">Name</h4>
             <button
               type="button"
               class="close"
@@ -277,7 +281,7 @@
           <div class="modal-body">
             <form method="post" class="editDep needs-validation">
               <div class="form-group">
-                <label for="editDepartmentName">Department Name</label>
+                <label for="editDepartmentName">Location </label>
                 <input
                   id="editDepartmentName"
                   type="text"
@@ -285,6 +289,17 @@
                   name="editDepartmentName"
                   required
                 />
+              </div>
+
+              <div class="form-group">
+                <label for="editLocationOfDepartment"
+                  >Department Location</label
+                >
+                <select
+                  class="form-control"
+                  id="editLocationOfDepartment"
+                  name="editLocationOfDepartment"
+                ></select>
               </div>
 
               <div class="modal-footer">
@@ -305,11 +320,12 @@
       </div>
     </div>
 
+    <!-- Edit locations modal -->
     <div id="editLocModal" class="modal" tabindex="-1" role="dialog">
       <div class="modal-dialog" role="document">
         <div class="modal-content">
           <div class="modal-header">
-            <h4 class="modal-title">Edit Location</h4>
+            <h4 class="modal-title">Name</h4>
             <button
               type="button"
               class="close"
@@ -350,11 +366,12 @@
       </div>
     </div>
 
+    <!-- Confirm deletion modal -->
     <div id="deleteModal" class="modal" tabindex="-1" role="dialog">
       <div class="modal-dialog" role="document">
         <div class="modal-content">
           <div class="modal-body">
-            <form method="post" class="delete">
+            <form method="post" class="deleteForm">
               <p>Are you sure you want to delete this?</p>
 
               <div class="modal-footer">
@@ -375,8 +392,24 @@
       </div>
     </div>
 
+    <!-- TODO: Deal with bug sometimes error does not show up -->
+    <!-- Error modal -->
+    <div id="errorModal" class="modal" tabindex="-1" role="dialog">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content alert alert-danger">
+          <div class="modal-header">
+            <h4 id="errorTitle"></h4>
+          </div>
+          <div class="modal-body">
+            <p id="errorMessage"></p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Nav bar -->
     <div class="container">
-      <nav class="navbar navbar-light bg-light">
+      <nav class="navbar sticky-top navbar-light bg-light">
         <form class="form-inline">
           <select class="custom-select mr-1" id="searchOption">
             <option value="personnel" selected>Personnel</option>
@@ -391,7 +424,7 @@
             aria-label="Search"
           />
           <button id="searchButton" class="btn btn-success mr-1" type="submit">
-            Search
+            <img src="./assets/Images/search.svg" alt="search button" />
           </button>
           <button
             id="addButton"
@@ -400,7 +433,7 @@
             data-toggle="modal"
             data-target="#addUserModal"
           >
-            +
+            <img src="./assets/Images/add.svg" alt="add button" />
           </button>
         </form>
       </nav>

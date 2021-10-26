@@ -1,11 +1,17 @@
 <?php
+
+// http://localhost/libs/php/editDep.php?department=Human%20Resources&newDepartment=IT
+// ini_set('display_errors', 'On');
+// error_reporting(E_ALL);
+
 $executionStartTime = microtime(true);
 
 include("./static/config.php");
 include("./static/response.php");
 
-$department = $_REQUEST["department"];
+$id = $_REQUEST["id"];
 $newDepartment = $_REQUEST["newDepartment"];
+$newLocation = $_REQUEST["newLocation"];
 
 $conn = new mysqli($cd_host, $cd_user, $cd_password, $cd_dbname, $cd_port, $cd_socket);
 
@@ -15,11 +21,12 @@ if (mysqli_connect_errno()) {
 }
 
 $query = "
-    UPDATE department d
-        SET d.name='{$newDepartment}'
+    UPDATE department 
+        SET 
+            name='{$newDepartment}',
+            locationID='{$newLocation}'
         WHERE 
-            d.name='{$department}' 
-            
+            id='{$id}'         
 ";
 
 $result = $conn->query($query);

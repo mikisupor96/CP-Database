@@ -1,6 +1,6 @@
 <?php
 // remove next two lines for production
-// http://localhost/libs/php/deleteLocation.php?location=London
+// http://localhost/libs/php/deleteUser.php?department=Sales
 
 ini_set('display_errors', 'On');
 error_reporting(E_ALL);
@@ -23,18 +23,24 @@ if (mysqli_connect_errno()) {
     exit;
 }
 
+// Check if there are any users in department
+
 $query = "
-    DELETE FROM location
+    SELECT count(id) as pc 
+    FROM personnel 
     WHERE 
-        id='{$id}' 
+        departmentID = '{$id}'
 ";
 
 $result = $conn->query($query);
 
+$row = mysqli_fetch_assoc($result);
+
+$data = $row;
 
 if (!$result) {
     response($conn, "400", mysqli_errno($conn),  mysqli_error($conn), (microtime(true) - $executionStartTime) / 1000 . " ms", []);
     exit;
 }
 
-response($conn, "200", "ok", "success", (microtime(true) - $executionStartTime) / 1000 . " ms", true);
+response($conn, "200", "ok", "success", (microtime(true) - $executionStartTime) / 1000 . " ms", $data);

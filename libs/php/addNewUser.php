@@ -1,4 +1,10 @@
 <?php
+// example use from browser
+// http://localhost/libs/php/addNewUser.php?firstName=Mihai&lastName=Pascaru&email=mihainstein@gmail.com&department=Training
+
+// ini_set('display_errors', 'On');
+// error_reporting(E_ALL);
+
 $executionStartTime = microtime(true);
 
 include("../php/static/config.php");
@@ -16,14 +22,15 @@ if (mysqli_connect_errno()) {
     exit;
 }
 
+// Checks user`s name and email
 function checkNameAndEmail()
 {
     global $conn, $executionStartTime, $firstName, $lastName, $email;
 
 
     $query = "
-        SELECT p.lastName, p.firstName, p.email
-        FROM personnel p 
+        SELECT count(id) pc
+        FROM personnel  
         WHERE 
             firstName='{$firstName}' AND 
             lastName='{$lastName}' AND
@@ -31,6 +38,7 @@ function checkNameAndEmail()
     ";
 
     $result = $conn->query($query);
+
     if (!$result) {
         response($conn, "400", mysqli_errno($conn),  mysqli_error($conn), (microtime(true) - $executionStartTime) / 1000 . " ms", []);
         exit;
@@ -38,11 +46,12 @@ function checkNameAndEmail()
 
     $row = mysqli_fetch_assoc($result);
 
-    if ($row) {
-        response($conn, "409", "Conflict", "fail", (microtime(true) - $executionStartTime) / 1000 . " ms", false);
-    } else {
+    if($row["pc"] === "0"){
         addUserToDatabase();
         response($conn, "200", "ok", "success", (microtime(true) - $executionStartTime) / 1000 . " ms", true);
+    }else {
+        response($conn, "409", "Conflict", "fail", (microtime(true) - $executionStartTime) / 1000 . " ms", false);
+
     }
 }
 
@@ -66,6 +75,7 @@ function getNextID($table)
     return $data["MAX(id)"] + 1;
 }
 
+// Adds new user to current or new department
 function addUserToDatabase()
 {
     global $conn, $executionStartTime, $firstName, $lastName, $email, $department;
@@ -90,6 +100,7 @@ function addUserToDatabase()
         response($conn, "400", mysqli_errno($conn),  mysqli_error($conn), (microtime(true) - $executionStartTime) / 1000 . " ms", []);
         exit;
     }
+
 }
 
 checkNameAndEmail();

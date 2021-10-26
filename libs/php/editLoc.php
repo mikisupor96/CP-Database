@@ -1,10 +1,15 @@
 <?php
+
+// http://localhost/libs/php/editDep.php?location=London&newDepartment=Iran
+ini_set('display_errors', 'On');
+error_reporting(E_ALL);
+
 $executionStartTime = microtime(true);
 
 include("./static/config.php");
 include("./static/response.php");
 
-$location = $_REQUEST["location"];
+$locationID = $_REQUEST["locationID"];
 $newLocation = $_REQUEST["newLocation"];
 
 $conn = new mysqli($cd_host, $cd_user, $cd_password, $cd_dbname, $cd_port, $cd_socket);
@@ -15,11 +20,10 @@ if (mysqli_connect_errno()) {
 }
 
 $query = "
-    UPDATE location l
-        SET l.name='{$newLocation}'
+    UPDATE location 
+        SET name='{$newLocation}'
         WHERE 
-            l.name='{$location}' 
-            
+            id='{$locationID}'      
 ";
 
 $result = $conn->query($query);

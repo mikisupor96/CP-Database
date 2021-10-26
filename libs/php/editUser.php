@@ -1,12 +1,15 @@
 <?php
+
+// http://localhost/libs/php/editUser.php?firstName=Dave&lastName=Bobby&email=davebobby@gmail.com&newFirstName=Dave&newLastName=Bobby&newEmail=davebobby@gmail.com&newDepartment=davebobby@gmail.com
+ini_set('display_errors', 'On');
+error_reporting(E_ALL);
+
 $executionStartTime = microtime(true);
 
 include("./static/config.php");
 include("./static/response.php");
 
-$firstName = $_REQUEST["firstName"];
-$lastName = $_REQUEST["lastName"];
-$email = $_REQUEST["email"];
+$id = $_REQUEST["id"];
 $newFirstName = $_REQUEST["newFirstName"];
 $newLastName = $_REQUEST["newLastName"];
 $newEmail = $_REQUEST["newEmail"];
@@ -21,16 +24,13 @@ if (mysqli_connect_errno()) {
 
 //* Update department id
 $query = "
-    UPDATE personnel p
-        SET p.firstName='{$newFirstName}',
-            p.lastName='{$newLastName}',
-            p.email='{$newEmail}',
-            p.departmentID='{$newDepartment}'
+    UPDATE personnel 
+        SET firstName='{$newFirstName}',
+            lastName='{$newLastName}',
+            email='{$newEmail}',
+            departmentID='{$newDepartment}'
         WHERE 
-            p.firstName='{$firstName}' AND
-            p.lastName='{$lastName}' AND
-            p.email='{$email}' 
-            
+            id='{$id}' 
 ";
 
 $result = $conn->query($query);
