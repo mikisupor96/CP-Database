@@ -1,4 +1,6 @@
-/* #preloader {
+/* TODO: Deal with preloader issues */
+
+#preloader {
   position: fixed;
   top: 0;
   left: 0;
@@ -7,7 +9,8 @@
   z-index: 9999;
   overflow: hidden;
   background: #fff;
-} */
+}
+
 #preloader:before {
   content: "";
   position: fixed;
@@ -21,6 +24,7 @@
   -webkit-animation: animate-preloader 1s linear infinite;
   animation: animate-preloader 1s linear infinite;
 }
+
 @-webkit-keyframes animate-preloader {
   0% {
     -webkit-transform: rotate(0deg);
@@ -31,6 +35,7 @@
     transform: rotate(360deg);
   }
 }
+
 @keyframes animate-preloader {
   0% {
     -webkit-transform: rotate(0deg);

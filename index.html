@@ -6,10 +6,32 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Company Database</title>
 
+    <link
+      rel="apple-touch-icon"
+      sizes="180x180"
+      href="./assets/Images/favicon/apple-touch-icon.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="32x32"
+      href="./assets/Images/favicon/favicon-32x32.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="16x16"
+      href="./assets/Images/favicon/favicon-16x16.png"
+    />
+    <link rel="manifest" href="./assets/Images/favicon/site.webmanifest" />
+
     <link rel="stylesheet" href="./assets/css/bootstrap.min.css" />
     <link rel="stylesheet" href="./style.css" />
   </head>
-  <body id="preloader">
+  <body>
+    <!-- Preloader -->
+    <div id="preloader"></div>
+
     <!-- Add new user modal -->
     <div class="modal" id="addUserModal" tabindex="-1" role="dialog">
       <div class="modal-dialog" role="document">
@@ -69,7 +91,12 @@
               </div>
 
               <div class="modal-footer">
-                <button type="submit" value="Submit" class="btn btn-success">
+                <button
+                  id="addUser"
+                  type="submit"
+                  value="Submit"
+                  class="btn btn-success"
+                >
                   Submit
                 </button>
                 <button
@@ -126,7 +153,12 @@
               </div>
 
               <div class="modal-footer">
-                <button type="submit" value="Submit" class="btn btn-success">
+                <button
+                  id="addDepartment"
+                  type="submit"
+                  value="Submit"
+                  class="btn btn-success"
+                >
                   Submit
                 </button>
                 <button
@@ -173,7 +205,12 @@
               </div>
 
               <div class="modal-footer">
-                <button type="submit" value="Submit" class="btn btn-success">
+                <button
+                  id="addLocation"
+                  type="submit"
+                  value="Submit"
+                  class="btn btn-success"
+                >
                   Submit
                 </button>
                 <button
@@ -392,16 +429,15 @@
       </div>
     </div>
 
-    <!-- TODO: Deal with bug sometimes error does not show up -->
-    <!-- Error modal -->
-    <div id="errorModal" class="modal" tabindex="-1" role="dialog">
+    <!-- Message modal -->
+    <div id="messageModal" class="modal" tabindex="-1" role="dialog">
       <div class="modal-dialog" role="document">
-        <div class="modal-content alert alert-danger">
+        <div class="modal-content">
           <div class="modal-header">
-            <h4 id="errorTitle"></h4>
+            <h4></h4>
           </div>
           <div class="modal-body">
-            <p id="errorMessage"></p>
+            <p></p>
           </div>
         </div>
       </div>
@@ -413,8 +449,8 @@
         <form class="form-inline">
           <select class="custom-select mr-1" id="searchOption">
             <option value="personnel" selected>Personnel</option>
-            <option value="departments">Departments</option>
-            <option value="locations">Locations</option>
+            <option value="department">Departments</option>
+            <option value="location">Locations</option>
           </select>
           <input
             id="searchBox"

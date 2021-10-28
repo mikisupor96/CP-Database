@@ -1,80 +1,93 @@
 // *On document load
 $(document).ready(() => {
+  // remove preloader
+  $("body div:first-child").removeAttr("id");
+
   // Prevent form resubmit //
   $("form").submit(() => {
     return false;
   });
 
   // populate department section
-  populateDepartments();
+  populateFields(
+    "populateFields.php",
+    "#departmentName",
+    ".department-select",
+    "department"
+  );
 
   // populate location section
-  populateLocations();
+  populateFields(
+    "populateFields.php",
+    "#locationOfDepartment",
+    "#editLocationOfDepartment",
+    "location"
+  );
 
   // Render all personnel
   renderPersonnel();
 });
 
-//* Action on user search
-$("#searchButton").click(() => {
+// *Action on user search
+$("#searchButton").click(function () {
   const select = $("#searchOption").val();
   const value = $("#searchBox").val();
-  const result = $(".result");
 
-  // Clear everything on change
-  $("#searchOption").change(() => {
-    result.empty();
-  });
-
-  // Clear previous result
-  result.empty();
-
-  // Reset value of search bar
   $("#searchBox").val("");
 
   if (select === "personnel") {
     value !== "" ? renderPersonnel(value) : renderPersonnel();
-  } else if (select === "departments") {
+  } else if (select === "department") {
     value !== "" ? renderDepartments(value) : renderDepartments();
-  } else if (select === "locations") {
-    value !== "" ? renderLocations(value) : renderLocations();
+  } else if (select === "location") {
+    value !== "" ? renderDepartments(value) : renderLocations();
   }
 });
 
-//* Category change
+$("#addButton").click(() => {
+  $("#addUserModal").each(function () {
+    $(this).find(":input").val("");
+  });
+});
+
+// *Category change
 $("#searchOption").change(function () {
   const select = $(this).val();
+  const addButton = $("#addButton");
+
   if (select === "personnel") {
-    $("#addButton").attr("data-target", "#addUserModal");
-    $(".result").empty();
+    $("#addButton").click(() => {
+      $("#addUserModal").each(function () {
+        $(this).find(":input").val("");
+      });
+    });
+    addButton.attr("data-target", "#addUserModal");
     renderPersonnel();
-  } else if (select === "departments") {
-    $("#addButton").attr("data-target", "#addDepartmentModal");
-    $(".result").empty();
+  } else if (select === "department") {
+    $("#addButton").click(() => {
+      $("#addDepartmentModal").each(function () {
+        $(this).find(":input").val("");
+      });
+    });
+    addButton.attr("data-target", "#addDepartmentModal");
     renderDepartments();
-  } else if (select === "locations") {
-    $("#addButton").attr("data-target", "#addLocationModal");
-    $(".result").empty();
+  } else if (select === "location") {
+    $("#addButton").click(() => {
+      $("#addLocationModal").each(function () {
+        $(this).find(":input").val("");
+      });
+    });
+    addButton.attr("data-target", "#addLocationModal");
     renderLocations();
   }
 });
 
-// *Populate location field
-function populateLocations() {
-  ajaxRequest("./libs/php/getAllLocations.php", "", (result) => {
+// *Populate select fields
+function populateFields(type, name, select, data) {
+  ajaxRequest(`./libs/php/${type}`, { type: data }, (result) => {
     result["data"].forEach((el) => {
-      $("#locationOfDepartment").append(new Option(el["name"], el["id"]));
-      $("#editLocationOfDepartment").append(new Option(el["name"], el["id"]));
-    });
-  });
-}
-
-// *Populate department field
-function populateDepartments() {
-  ajaxRequest("./libs/php/getDepartments.php", "", (result) => {
-    result["data"].forEach((el) => {
-      $("#departmentName").append(new Option(el["name"], el["id"]));
-      $(".department-select").append(new Option(el["name"], el["id"]));
+      $(name).append(new Option(el["name"], el["id"]));
+      $(select).append(new Option(el["name"], el["id"]));
     });
   });
 }
@@ -95,24 +108,42 @@ function ajaxRequest(url, data, code) {
   });
 }
 
+function messageModal(title, message, type, hide) {
+  $(hide).modal("hide");
+  $("#messageModal h4").html(title);
+  $("#messageModal p").html(message);
+  $("#messageModal .modal-content").addClass(
+    `alert alert-${type ? "success" : "danger"}`
+  );
+  $("#messageModal .modal-content").removeClass(
+    `alert alert-${type ? "danger" : "success"}`
+  );
+  $("#messageModal").modal("show");
+}
+
 // *Render Personnel
 function renderPersonnel(value) {
   ajaxRequest(
-    "./libs/php/getPersonnel.php",
+    "./libs/php/get.php",
     {
       value: value,
+      type: "personnel",
     },
     (result) => {
+      // *Clear prev result
+      $(".result").empty();
+
       // *Get
       if (result["data"]) {
         result["data"].forEach((el) => {
+          // TODO: Add programatical way https://www.valentinog.com/blog/html-table/
           $(".result").append(`
             <div class="card">
               <div class="card-body ">
                 <h5 class="card-title">${el["firstName"]} ${el["lastName"]}</h5>
-                <p class="card-text">${el["location"]}</p>
+                <h6 class="card-subtitle mb-2 text-muted">${el["location"]}</h6>
                 <p class="card-text">${el["department"]}</p>
-                <p class="card-text d-inline-flex">${el["email"]}</p>
+                <a href="#" class="card-link">${el["email"]}</a>
                 <button class="btn btn-danger btn-sm float-right delete" data-toggle="modal" data-target="#deleteModal" data-id=${el["id"]}>
                   <img src="./assets/Images/delete.svg" alt="delete button" />
                 </button>
@@ -122,73 +153,24 @@ function renderPersonnel(value) {
               </div>
             </div>
           `);
-          // $(".result").append(
-          //   $("<div></div>")
-          //     .addClass("card")
-          //     .append(
-          //       $("<div></div>")
-          //         .addClass("card-body")
-          //         .append(
-          //           $("<h5></h5>")
-          //             .addClass("card-title")
-          //             .html(`${el["firstName"]} ${el["lastName"]}`)
-          //         )
-          //         .append(
-          //           $("<p></p>").addClass("card-text").html(`${el["location"]}`)
-          //         )
-          //         .append(
-          //           $("<p></p>")
-          //             .addClass("card-text")
-          //             .html(`${el["department"]}`)
-          //         )
-          //         .append(
-          //           $("<p></p>").addClass("card-text").html(`${el["email"]}`)
-          //         )
-          //         .append(
-          //           $("<button></button>")
-          //             .addClass("btn btn-danger btn-sm float-right delete")
-          //             .attr("data-toggle", "modal")
-          //             .attr("data-target", "#deleteModal")
-          //             .attr("data-id", `${el["id"]}`)
-          //             .append(
-          //               $("<img></img>")
-          //                 .attr("src", "./assets/Images/delete.svg")
-          //                 .attr("alt", "delete button")
-          //             )
-          //         )
-          //         .append(
-          //           $("<button></button>")
-          //             .addClass("btn btn-success btn-sm float-right mr-1 edit")
-          //             .attr("data-toggle", "modal")
-          //             .attr("data-target", "#editUserModal")
-          //             .attr("data-id", `${el["id"]}`)
-          //             .append(
-          //               $("<img></img>")
-          //                 .attr("src", "./assets/Images/edit.svg")
-          //                 .attr("alt", "edit button")
-          //             )
-          //         )
-          //     )
-          // );
         });
       } else {
-        $("#errorTitle").html(`User/s not found!`);
-        $("#errorMessage").html(
-          `Could not find user/s matching the search criteria <b>"${value}"</b>, try searching by first name, last name, email, location or department.`
+        messageModal(
+          `User not found!`,
+          `Could not find <b>${value}</b>, please try again.`,
+          false
         );
-        $("#errorModal").modal("show");
       }
 
       // *Edit
       $(".edit").click(function () {
-        $(".alert").remove();
-
         const id = $(this).attr("data-id");
 
         ajaxRequest(
           "./libs/php/searchById.php",
           {
             id: id,
+            type: "personnel",
           },
           (result) => {
             const firstNameDom = $("#editUserModal").find("#editFirstName");
@@ -196,9 +178,11 @@ function renderPersonnel(value) {
             const emailDom = $("#editUserModal").find("#editEmail");
             const departmentDom =
               $("#editUserModal").find(".department-select");
+            const firstName = result["data"]["firstName"];
+            const lastName = result["data"]["lastName"];
 
-            firstNameDom.val(result["data"]["firstName"]);
-            lastNameDom.val(result["data"]["lastName"]);
+            firstNameDom.val(firstName);
+            lastNameDom.val(lastName);
             emailDom.val(result["data"]["email"]);
             departmentDom.val(result["data"]["departmentID"]);
 
@@ -209,29 +193,31 @@ function renderPersonnel(value) {
               const newDepartment = departmentDom.val();
 
               ajaxRequest(
-                "./libs/php/editUser.php",
+                "./libs/php/edit.php",
                 {
                   id: id,
+                  type: "personnel",
                   newFirstName: newFirstName,
                   newLastName: newLastName,
                   newEmail: newEmail,
                   newDepartment: newDepartment,
                 },
                 (result) => {
-                  $(".alert").remove();
-
                   if (result["data"]) {
-                    $(".editUser").prepend(`
-                      <div class="alert alert-success" role="alert">
-                        User's details changed successfully.
-                      </div>
-                    `);
+                    messageModal(
+                      `User edited successfully!`,
+                      `User's <b>${firstName} ${lastName}</b> details sucessfully changed.`,
+                      true,
+                      "#editUserModal"
+                    );
+                    renderPersonnel();
                   } else {
-                    $(".editUser").prepend(`
-                      <div class="alert alert-danger" role="alert">
-                        Something went wrong, please check your details.
-                      </div>
-                    `);
+                    messageModal(
+                      `Error!`,
+                      `User's <b>${firstName} ${lastName}</b> details could not be changed.`,
+                      false,
+                      "#editUserModal"
+                    );
                   }
                 }
               );
@@ -241,79 +227,97 @@ function renderPersonnel(value) {
       });
 
       // *Delete
-      $(".delete").on("click", function () {
-        $(".alert").remove();
-
+      $(".delete").click(function () {
         const id = $(this).attr("data-id");
 
-        $(".yesDelete")
-          .unbind() // make sure click event only runs once
-          .click(() => {
-            ajaxRequest(
-              "./libs/php/deleteUser.php",
-              {
-                id: id,
-              },
-              () => {
-                $(".deleteForm").prepend(`
-                   <div class="alert alert-success" role="alert">
-                     User deleted!
-                   </div>
-              `);
-              }
-            );
-          });
+        ajaxRequest(
+          "./libs/php/searchById.php",
+          {
+            id: id,
+            type: "personnel",
+          },
+          (result) => {
+            const firstName = result["data"]["firstName"];
+            const lastName = result["data"]["lastName"];
+
+            $(".yesDelete")
+              .unbind() // make sure click event only runs once
+              .click(() => {
+                ajaxRequest(
+                  "./libs/php/delete.php",
+                  {
+                    id: id,
+                    type: "personnel",
+                  },
+                  () => {
+                    messageModal(
+                      `Success!`,
+                      `User's <b>${firstName} ${lastName}</b> details sucessfully deleted.`,
+                      true,
+                      "#deleteModal"
+                    );
+                    $(this).parent().parent().remove();
+                  }
+                );
+              });
+          }
+        );
       });
     }
   );
 
-  // TODO: Change the way it checks user entered values
   // *Add
-  $(".createUser").submit(() => {
-    const firstName = $("#firstName").val();
-    const lastName = $("#lastName").val();
-    const email = $("#email").val();
-    const department = $(".department-select").val();
+  $("#addUser")
+    .unbind()
+    .click(function () {
+      const firstName = $("#firstName").val();
+      const lastName = $("#lastName").val();
+      const email = $("#email").val();
+      const department = $(".department-select").val();
 
-    ajaxRequest(
-      "./libs/php/addNewUser.php",
-      {
-        firstName: firstName,
-        lastName: lastName,
-        email: email,
-        department: department,
-      },
-      (result) => {
-        $(".alert").remove();
-
-        console.log(result["data"]);
-
-        if (result["data"]) {
-          $(".createUser").prepend(`
-            <div class="alert alert-success" role="alert">
-              User, "${firstName}" sucessfully added!
-            </div>
-          `);
-        } else {
-          $(".createUser").prepend(`
-            <div class="alert alert-danger" role="alert">
-              First name, last name or email at least one must be unique!
-            </div>
-          `);
+      ajaxRequest(
+        "./libs/php/add.php",
+        {
+          type: "personnel",
+          firstName: firstName,
+          lastName: lastName,
+          email: email,
+          department: department,
+        },
+        (result) => {
+          if (result["data"]) {
+            messageModal(
+              `User added!`,
+              `User <b>${firstName} ${lastName}</b> sucessfully added!`,
+              true,
+              "#addUserModal"
+            );
+            renderPersonnel();
+          } else {
+            messageModal(
+              `Error!`,
+              `User <b>${firstName} ${lastName}</b> cannot be added!`,
+              false,
+              "#addUserModal"
+            );
+          }
         }
-      }
-    );
-  });
+      );
+    });
 }
 
 // *Render Departments
 function renderDepartments(value) {
   ajaxRequest(
-    "./libs/php/getDepartments.php",
+    "./libs/php/get.php",
     {
       value: value,
+      type: "department",
     },
     (result) => {
+      // *Clear prev result
+      $(".result").empty();
+
       // *Get
       if (result["data"]) {
         result["data"].forEach((el) => {
@@ -321,10 +325,10 @@ function renderDepartments(value) {
               <div class="card">
               <div class="card-body ">
                   <p class="card-text">${el["name"]} </p>
-                  <button class="btn btn-danger btn-sm float-right removeDep " data-toggle="modal" data-target="#deleteModal" data-id=${el["id"]}>
+                  <button class="btn btn-danger btn-sm float-right delete" data-toggle="modal" data-target="#deleteModal" data-id=${el["id"]}>
                     <img src="./assets/Images/delete.svg" alt="delete button" />
                   </button>
-                  <button class="btn btn-success btn-sm float-right editDepButton mr-1 " data-toggle="modal" data-target="#editDepModal" data-id=${el["id"]}>
+                  <button class="btn btn-success btn-sm float-right edit mr-1" data-toggle="modal" data-target="#editDepModal" data-id=${el["id"]}>
                     <img src="./assets/Images/edit.svg" alt="edit button" />
                   </button>
               </div>
@@ -332,23 +336,22 @@ function renderDepartments(value) {
         `);
         });
       } else {
-        $("#errorTitle").html(`Department/s not found!`);
-        $("#errorMessage").html(
-          `Could not find department/s matching the search criteria "${value}", please search by using current departments name.`
+        messageModal(
+          `Department not found!`,
+          `Could not find <b>${value}</b>, please try again.`,
+          false
         );
-        $("#errorModal").modal("show");
       }
 
       // *Edit
-      $(".editDepButton").click(function () {
-        $(".alert").remove();
-
+      $(".edit").click(function () {
         const id = $(this).attr("data-id");
 
         ajaxRequest(
-          "./libs/php/searchByDepId.php",
+          "./libs/php/searchById.php",
           {
             id: id,
+            type: "department",
           },
           (result) => {
             const departmentDom = $("#editDepModal").find(
@@ -357,8 +360,9 @@ function renderDepartments(value) {
             const locationDom = $("#editDepModal").find(
               "#editLocationOfDepartment"
             );
+            const department = result["data"]["name"];
 
-            departmentDom.val(result["data"]["name"]);
+            departmentDom.val(department);
             locationDom.val(result["data"]["locationID"]);
 
             $(".editDep").submit(() => {
@@ -366,27 +370,29 @@ function renderDepartments(value) {
               const newLocation = locationDom.val();
 
               ajaxRequest(
-                "./libs/php/editDep.php",
+                "./libs/php/edit.php",
                 {
                   id: id,
+                  type: "department",
                   newDepartment: newDepartment,
                   newLocation: newLocation,
                 },
                 (result) => {
-                  $(".alert").remove();
-
                   if (result["data"]) {
-                    $(".editDep").prepend(`
-                      <div class="alert alert-success" role="alert">
-                        Department details changed successfully.
-                      </div>
-                    `);
+                    messageModal(
+                      `Department edited successfully!`,
+                      `Department's <b>${department}</b> details sucessfully changed.`,
+                      true,
+                      "#editDepModal"
+                    );
+                    renderDepartments();
                   } else {
-                    $(".editDep").prepend(`
-                      <div class="alert alert-danger" role="alert">
-                        Something went wrong, please check your details.
-                      </div>
-                    `);
+                    messageModal(
+                      `Error!`,
+                      `Department's <b>${department}</b> details could not be changed.`,
+                      false,
+                      "#editDepModal"
+                    );
                   }
                 }
               );
@@ -396,93 +402,111 @@ function renderDepartments(value) {
       });
 
       // *Delete
-      $(".removeDep").on("click", function () {
-        $(".alert").remove();
-
+      $(".delete").click(function () {
         const id = $(this).attr("data-id");
 
         ajaxRequest(
-          "./libs/php/checkDepartment.php",
+          "./libs/php/searchById.php",
           {
             id: id,
+            type: "department",
           },
           (result) => {
-            if (result["data"]["pc"] === "0") {
-              $(".deleteForm p").html(
-                `Are you sure you want to delete this department?`
-              );
-              $(".deleteForm .modal-footer").removeClass("d-none");
+            const department = result["data"]["name"];
 
-              $(".yesDelete")
-                .unbind() // make sure click event only runs once
-                .click(() => {
-                  ajaxRequest(
-                    "./libs/php/deleteDepartment.php",
-                    {
-                      id: id,
-                    },
-                    () => {
-                      $(".deleteForm").prepend(`
-                        <div class="alert alert-success" role="alert">
-                          Department deleted!
-                        </div>
-                      `);
-                      $(this).parent().parent().remove();
-                    }
+            ajaxRequest(
+              "./libs/php/checkNumber.php",
+              {
+                id: id,
+                type: "department",
+              },
+              (result) => {
+                if (result["data"]["pc"] === "0") {
+                  $(".yesDelete")
+                    .unbind()
+                    .click(() => {
+                      ajaxRequest(
+                        "./libs/php/delete.php",
+                        {
+                          id: id,
+                          type: "department",
+                        },
+                        () => {
+                          messageModal(
+                            `Success!`,
+                            `Department's <b>${department}</b> details sucessfully deleted.`,
+                            true,
+                            "#deleteModal"
+                          );
+
+                          $(this).parent().parent().remove();
+                        }
+                      );
+                    });
+                } else {
+                  messageModal(
+                    `Error!`,
+                    `Cannot delete <b>${department}</b> please remove the remaining <b>${result["data"]["pc"]}</b> users first.`,
+                    false,
+                    "#deleteModal"
                   );
-                });
-            } else {
-              $(".deleteForm p").html(
-                `Cannot delete department please remove the remaining ${result["data"]["pc"]} users first.`
-              );
-              $(".deleteForm .modal-footer").addClass("d-none");
-            }
+                }
+              }
+            );
           }
         );
       });
     }
   );
-  // TODO: Change the way it checks user entered values
+
   // *Add
-  $(".createDepartment").submit(function () {
-    const locationID = $("#locationOfDepartment").val();
-    const department = $("#departmentName").val();
+  $("#addDepartment")
+    .unbind()
+    .click(function () {
+      const locationID = $("#locationOfDepartment").val();
+      const department = $("#departmentName").val();
 
-    ajaxRequest(
-      "./libs/php/addNewDepartment.php",
-      {
-        department: department,
-        locationID: locationID,
-      },
-      (result) => {
-        $(".alert").remove();
-
-        if (result["data"]) {
-          $(".createDepartment").prepend(`
-                <div class="alert alert-success" role="alert">
-                  New department added!
-                </div>
-              `);
-        } else {
-          $(".createDepartment").prepend(`
-              <div class="alert alert-danger" role="alert">
-                Please make sure you add a unique department!
-              </div>
-            `);
+      ajaxRequest(
+        "./libs/php/add.php",
+        {
+          type: "department",
+          department: department,
+          locationID: locationID,
+        },
+        (result) => {
+          if (result["data"]) {
+            messageModal(
+              `Department added!`,
+              `Department <b>${department}</b> sucessfully added!`,
+              true,
+              "#addDepartmentModal"
+            );
+            renderDepartments();
+          } else {
+            messageModal(
+              `Error!`,
+              `Department <b>${department}</b> cannot be added!`,
+              false,
+              "#addDepartmentModal"
+            );
+          }
         }
-      }
-    );
-  });
+      );
+    });
 }
 
 // *Render Locations
 function renderLocations(value) {
   ajaxRequest(
-    "./libs/php/getLocations.php",
+    "./libs/php/get.php",
     {
       value: value,
+      type: "location",
     },
     (result) => {
+      // *Clear prev result
+      $(".result").empty();
+
       // *Get
       if (result["data"]) {
         result["data"].forEach((el) => {
@@ -490,10 +514,10 @@ function renderLocations(value) {
               <div class="card">
               <div class="card-body ">
                   <p class="card-text">${el["name"]} </p>
-                  <button class="btn btn-danger btn-sm float-right removeDep " data-toggle="modal" data-target="#deleteModal" data-id=${el["id"]}>
+                  <button class="btn btn-danger btn-sm float-right removeLoc " data-toggle="modal" data-target="#deleteModal" data-id=${el["id"]}>
                     <img src="./assets/Images/delete.svg" alt="delete button" />
                   </button>
-                  <button class="btn btn-success btn-sm float-right editLocButton mr-1 " data-toggle="modal" data-target="#editLocModal" data-id=${el["id"]}>
+                  <button class="btn btn-success btn-sm float-right mr-1 editLocButton" data-toggle="modal" data-target="#editLocModal" data-id=${el["id"]}>
                     <img src="./assets/Images/edit.svg" alt="edit button" />
                   </button>
               </div>
@@ -501,53 +525,55 @@ function renderLocations(value) {
         `);
         });
       } else {
-        $("#errorTitle").html(`Department/s not found!`);
-        $("#errorMessage").html(
-          `Could not find location/s matching the search criteria "${value}", please search by using current departments name.`
+        messageModal(
+          `Location not found!`,
+          `Could not find <b>${value}</b>, please try again.`,
+          false
         );
-        $("#errorModal").modal("show");
       }
 
       // *Edit
       $(".editLocButton").click(function () {
-        $(".alert").remove();
-
         const id = $(this).attr("data-id");
 
         ajaxRequest(
-          "./libs/php/searchByLocId.php",
+          "./libs/php/searchById.php",
           {
             id: id,
+            type: "location",
           },
           (result) => {
             const locationDom = $("#editLocModal").find("#editLocationName");
+            const location = result["data"]["name"];
 
-            locationDom.val(result["data"]["name"]);
+            locationDom.val(location);
 
             $(".editLoc").submit(() => {
               const newLocation = locationDom.val();
 
               ajaxRequest(
-                "./libs/php/editLoc.php",
+                "./libs/php/edit.php",
                 {
-                  locationID: id,
+                  id: id,
+                  type: "location",
                   newLocation: newLocation,
                 },
                 (result) => {
-                  $(".alert").remove();
-
                   if (result["data"]) {
-                    $(".editLoc").prepend(`
-                      <div class="alert alert-success" role="alert">
-                        Location details changed successfully.
-                      </div>
-                    `);
+                    messageModal(
+                      `Location edited successfully!`,
+                      `Location's <b>${location}</b> details sucessfully changed.`,
+                      true,
+                      "#editLocModal"
+                    );
+                    renderLocations();
                   } else {
-                    $(".editLoc").prepend(`
-                      <div class="alert alert-danger" role="alert">
-                        Something went wrong, please check your details.
-                      </div>
-                    `);
+                    messageModal(
+                      `Error!`,
+                      `Location's <b>${location}</b> details could not be changed.`,
+                      false,
+                      "#editLocModal"
+                    );
                   }
                 }
               );
@@ -557,80 +583,92 @@ function renderLocations(value) {
       });
 
       // *Delete
-      $(".removeDep").on("click", function () {
-        $(".alert").remove();
-
+      $(".removeLoc").click(function () {
         const id = $(this).attr("data-id");
 
         ajaxRequest(
-          "./libs/php/checkLocation.php",
+          "./libs/php/searchById.php",
           {
             id: id,
+            type: "location",
           },
           (result) => {
-            if (result["data"]["dc"] === "0") {
-              $(".deleteForm p").html(
-                `Are you sure you want to delete this location?`
-              );
-              $(".deleteForm .modal-footer").removeClass("d-none");
+            const location = result["data"]["name"];
 
-              $(".yesDelete")
-                .unbind() // make sure click event only runs once
-                .click(() => {
-                  ajaxRequest(
-                    "./libs/php/deleteLocation.php",
-                    {
-                      id: id,
-                    },
-                    () => {
-                      $(".deleteForm").prepend(`
-                        <div class="alert alert-success" role="alert">
-                          Location deleted!
-                        </div>
-                      `);
-                      $(this).parent().parent().remove();
-                    }
+            ajaxRequest(
+              "./libs/php/checkNumber.php",
+              {
+                id: id,
+                type: "location",
+              },
+              (result) => {
+                if (result["data"]["dc"] === "0") {
+                  $(".yesDelete")
+                    .unbind()
+                    .click(() => {
+                      ajaxRequest(
+                        "./libs/php/delete.php",
+                        {
+                          id: id,
+                          type: "location",
+                        },
+                        () => {
+                          messageModal(
+                            `Success!`,
+                            `Location's <b>${location}</b> details sucessfully deleted.`,
+                            true,
+                            "#deleteModal"
+                          );
+
+                          $(this).parent().parent().remove();
+                        }
+                      );
+                    });
+                } else {
+                  messageModal(
+                    `Error!`,
+                    `Cannot delete <b>${location}</b> please remove the remaining <b>${result["data"]["dc"]}</b> departments first.`,
+                    false,
+                    "#deleteModal"
                   );
-                });
-            } else {
-              $(".deleteForm p").html(
-                `Cannot delete location please remove the remaining ${result["data"]["dc"]} departments first.`
-              );
-              $(".deleteForm .modal-footer").addClass("d-none");
-            }
+                }
+              }
+            );
           }
         );
       });
     }
   );
-  // TODO: Change the way it checks user entered values
   // *Add
-  $(".createLocation").submit(function () {
-    // const location = $("#locationName").val();
-    const location = $("#locationName").val();
+  $("#addLocation")
+    .unbind()
+    .click(function () {
+      const location = $("#locationName").val();
 
-    ajaxRequest(
-      "./libs/php/addNewLocation.php",
-      {
-        location: location,
-      },
-      (result) => {
-        $(".alert").remove();
-
-        if (result["data"]) {
-          $(".createLocation").prepend(`
-                <div class="alert alert-success" role="alert">
-                  ${location} added!
-                </div>
-              `);
-        } else {
-          $(".createLocation").prepend(`
-              <div class="alert alert-danger" role="alert">
-                Please make sure you add a unique department!
-              </div>
-            `);
+      ajaxRequest(
+        "./libs/php/add.php",
+        {
+          type: "location",
+          location: location,
+        },
+        (result) => {
+          if (result["data"]) {
+            messageModal(
+              `Location added!`,
+              `Location <b>${location}</b> sucessfully added!`,
+              true,
+              "#addLocationModal"
+            );
+            renderLocations();
+          } else {
+            messageModal(
+              `Error!`,
+              `Location <b>${location}</b> cannot be added!`,
+              false,
+              "#addLocationModal"
+            );
+          }
         }
-      }
-    );
-  });
+      );
+    });
 }

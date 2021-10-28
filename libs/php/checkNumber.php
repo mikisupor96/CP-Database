@@ -1,6 +1,6 @@
 <?php
-// ini_set('display_errors', 'On');
-// error_reporting(E_ALL);
+ini_set('display_errors', 'On');
+error_reporting(E_ALL);
 
 $executionStartTime = microtime(true);
 
@@ -12,47 +12,39 @@ header('Content-Type: application/json; charset=UTF-8');
 $id = $_REQUEST["id"];
 $type = $_REQUEST["type"];
 
-$conn = new mysqli($cd_host, $cd_user, $cd_password, $cd_dbname, $cd_port);
+// CONNECT TO DB
+$conn = new mysqli($cd_host, $cd_user, $cd_password, $cd_dbname, $cd_port, $cd_socket);
 
 if (mysqli_connect_errno()) {
     response($conn, "300", mysqli_connect_errno(), mysqli_connect_error(), (microtime(true) - $executionStartTime) / 1000 . " ms", []);
     exit;
 }
 
-if ($type === "personnel") {
+if ($type === "location") {
     $query = "
-        SELECT p.lastName, p.firstName, p.jobTitle, p.email, d.name as department, d.id as departmentID
-        FROM personnel p LEFT JOIN department d ON (d.id = p.departmentID) 
-        LEFT JOIN location l ON (l.id = d.locationID)
+        SELECT count(id) as dc 
+        FROM department 
         WHERE 
-            p.id='{$id}'
-        ORDER BY p.lastName, p.firstName, d.name, l.name
+            locationID = '{$id}'
     ";
 } elseif ($type === "department") {
     $query = "
-        SELECT  name, locationID FROM department 
+        SELECT count(id) as pc 
+        FROM personnel 
         WHERE 
-            id='{$id}'
-        ORDER BY name
-    ";
-} elseif ($type === "location") {
-    $query = "
-        SELECT name FROM location 
-        WHERE 
-            id='{$id}'
-        ORDER BY name
+            departmentID = '{$id}'
     ";
 }
 
 $result = $conn->query($query);
 
+$row = mysqli_fetch_assoc($result);
+
+$data = $row;
+
 if (!$result) {
     response($conn, "400", mysqli_errno($conn),  mysqli_error($conn), (microtime(true) - $executionStartTime) / 1000 . " ms", []);
     exit;
-}
-
-while ($row = mysqli_fetch_assoc($result)) {
-    $data = $row;
 }
 
 response($conn, "200", "ok", "success", (microtime(true) - $executionStartTime) / 1000 . " ms", $data);
