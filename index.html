@@ -145,7 +145,7 @@
               <div class="form-group">
                 <label for="locationOfDepartment">Location </label>
                 <select
-                  class="form-control"
+                  class="form-control location-select"
                   id="locationOfDepartment"
                   placeholder="Malaysia"
                   name="locationOfDepartment"
@@ -283,7 +283,11 @@
               </div>
 
               <div class="modal-footer">
-                <button type="submit" value="Submit" class="btn btn-success">
+                <button
+                  type="button"
+                  value="Submit"
+                  class="btn btn-success editButton"
+                >
                   Submit
                 </button>
                 <button
@@ -318,7 +322,7 @@
           <div class="modal-body">
             <form method="post" class="editDep needs-validation">
               <div class="form-group">
-                <label for="editDepartmentName">Location </label>
+                <label for="editDepartmentName">Department </label>
                 <input
                   id="editDepartmentName"
                   type="text"
@@ -329,18 +333,20 @@
               </div>
 
               <div class="form-group">
-                <label for="editLocationOfDepartment"
-                  >Department Location</label
-                >
+                <label for="editLocationOfDepartment">Location</label>
                 <select
-                  class="form-control"
+                  class="form-control location-select"
                   id="editLocationOfDepartment"
                   name="editLocationOfDepartment"
                 ></select>
               </div>
 
               <div class="modal-footer">
-                <button type="submit" value="Submit" class="btn btn-success">
+                <button
+                  type="submit"
+                  value="Submit"
+                  class="btn btn-success editButton"
+                >
                   Submit
                 </button>
                 <button
@@ -386,7 +392,11 @@
               </div>
 
               <div class="modal-footer">
-                <button type="submit" value="Submit" class="btn btn-success">
+                <button
+                  type="submit"
+                  value="Submit"
+                  class="btn btn-success editButton"
+                >
                   Submit
                 </button>
                 <button
@@ -452,26 +462,42 @@
             <option value="department">Departments</option>
             <option value="location">Locations</option>
           </select>
-          <input
-            id="searchBox"
-            class="form-control mr-1"
-            type="search"
-            placeholder="Search"
-            aria-label="Search"
-          />
-          <button id="searchButton" class="btn btn-success mr-1" type="submit">
-            <img src="./assets/Images/search.svg" alt="search button" />
-          </button>
-          <button
-            id="addButton"
-            class="btn btn-primary"
-            type="submit"
-            data-toggle="modal"
-            data-target="#addUserModal"
-          >
-            <img src="./assets/Images/add.svg" alt="add button" />
-          </button>
+          <div class="input-group w-50">
+            <input
+              id="searchBox"
+              type="search"
+              class="form-control"
+              placeholder="Search"
+            />
+            <button
+              id="searchButton"
+              type="submit"
+              class="btn btn-success input-group-text"
+            >
+              <img src="./assets/Images/search.svg" alt="search button" />
+            </button>
+            <button
+              id="addButton"
+              class="btn btn-primary ml-1 input-group-text"
+              type="submit"
+              data-toggle="modal"
+              data-target="#addUserModal"
+            >
+              <img src="./assets/Images/add.svg" alt="add button" />
+            </button>
+          </div>
         </form>
+        <a
+          class="navbar-brand"
+          href="https://github.com/mikisupor96/Company-CMS"
+          target="_blank"
+        >
+          <img
+            rel="icon"
+            type="image/png"
+            sizes="32x32"
+            src="./assets/Images/favicon/favicon-32x32.png"
+        /></a>
       </nav>
       <div class="result"></div>
     </div>

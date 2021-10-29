@@ -8,22 +8,6 @@ $(document).ready(() => {
     return false;
   });
 
-  // populate department section
-  populateFields(
-    "populateFields.php",
-    "#departmentName",
-    ".department-select",
-    "department"
-  );
-
-  // populate location section
-  populateFields(
-    "populateFields.php",
-    "#locationOfDepartment",
-    "#editLocationOfDepartment",
-    "location"
-  );
-
   // Render all personnel
   renderPersonnel();
 });
@@ -44,37 +28,35 @@ $("#searchButton").click(function () {
   }
 });
 
-$("#addButton").click(() => {
-  $("#addUserModal").each(function () {
-    $(this).find(":input").val("");
-  });
-});
-
 // *Category change
 $("#searchOption").change(function () {
   const select = $(this).val();
   const addButton = $("#addButton");
+  const searchField = $("#searchBox");
 
   if (select === "personnel") {
+    searchField.val("");
     $("#addButton").click(() => {
       $("#addUserModal").each(function () {
-        $(this).find(":input").val("");
+        $(this).find("input").val("");
       });
     });
     addButton.attr("data-target", "#addUserModal");
     renderPersonnel();
   } else if (select === "department") {
+    searchField.val("");
     $("#addButton").click(() => {
       $("#addDepartmentModal").each(function () {
-        $(this).find(":input").val("");
+        $(this).find("input").val("");
       });
     });
     addButton.attr("data-target", "#addDepartmentModal");
     renderDepartments();
   } else if (select === "location") {
+    searchField.val("");
     $("#addButton").click(() => {
       $("#addLocationModal").each(function () {
-        $(this).find(":input").val("");
+        $(this).find("input").val("");
       });
     });
     addButton.attr("data-target", "#addLocationModal");
@@ -83,10 +65,10 @@ $("#searchOption").change(function () {
 });
 
 // *Populate select fields
-function populateFields(type, name, select, data) {
+function populateFields(type, select, data) {
+  $(select).empty();
   ajaxRequest(`./libs/php/${type}`, { type: data }, (result) => {
     result["data"].forEach((el) => {
-      $(name).append(new Option(el["name"], el["id"]));
       $(select).append(new Option(el["name"], el["id"]));
     });
   });
@@ -123,6 +105,9 @@ function messageModal(title, message, type, hide) {
 
 // *Render Personnel
 function renderPersonnel(value) {
+  populateFields("populateFields.php", ".department-select", "department");
+  populateFields("populateFields.php", ".location-select", "location");
+
   ajaxRequest(
     "./libs/php/get.php",
     {
@@ -136,20 +121,22 @@ function renderPersonnel(value) {
       // *Get
       if (result["data"]) {
         result["data"].forEach((el) => {
-          // TODO: Add programatical way https://www.valentinog.com/blog/html-table/
           $(".result").append(`
-            <div class="card">
+            <div class="card col">
               <div class="card-body ">
                 <h5 class="card-title">${el["firstName"]} ${el["lastName"]}</h5>
-                <h6 class="card-subtitle mb-2 text-muted">${el["location"]}</h6>
-                <p class="card-text">${el["department"]}</p>
-                <a href="#" class="card-link">${el["email"]}</a>
-                <button class="btn btn-danger btn-sm float-right delete" data-toggle="modal" data-target="#deleteModal" data-id=${el["id"]}>
-                  <img src="./assets/Images/delete.svg" alt="delete button" />
-                </button>
-                <button class="btn btn-success btn-sm float-right mr-1 edit" data-toggle="modal" data-target="#editUserModal" data-id=${el["id"]}>
-                  <img src="./assets/Images/edit.svg" alt="edit button" />
-                </button>
+                <h6 class="card-subtitle text-muted mb-1">${el["location"]}</h6>
+                <p class="card-text mb-1">${el["department"]}</p>
+                <a href="#" class="card-link ">${el["email"]}</a>
+
+                <div class="input-group w-50 mt-1">
+                  <button class="btn btn-success btn-sm  mr-1 input-group-text edit" data-toggle="modal" data-target="#editUserModal" data-id=${el["id"]}>
+                    <img src="./assets/Images/edit.svg" alt="edit button" />
+                  </button>
+                  <button class="btn btn-danger btn-sm input-group-text delete" data-toggle="modal" data-target="#deleteModal" data-id=${el["id"]}>
+                    <img src="./assets/Images/delete.svg" alt="delete button" />
+                  </button>
+                </div>
               </div>
             </div>
           `);
@@ -186,42 +173,44 @@ function renderPersonnel(value) {
             emailDom.val(result["data"]["email"]);
             departmentDom.val(result["data"]["departmentID"]);
 
-            $(".editUser").submit(() => {
-              const newFirstName = firstNameDom.val();
-              const newLastName = lastNameDom.val();
-              const newEmail = emailDom.val();
-              const newDepartment = departmentDom.val();
+            $(".editButton")
+              .unbind()
+              .click(() => {
+                const newFirstName = firstNameDom.val();
+                const newLastName = lastNameDom.val();
+                const newEmail = emailDom.val();
+                const newDepartment = departmentDom.val();
 
-              ajaxRequest(
-                "./libs/php/edit.php",
-                {
-                  id: id,
-                  type: "personnel",
-                  newFirstName: newFirstName,
-                  newLastName: newLastName,
-                  newEmail: newEmail,
-                  newDepartment: newDepartment,
-                },
-                (result) => {
-                  if (result["data"]) {
-                    messageModal(
-                      `User edited successfully!`,
-                      `User's <b>${firstName} ${lastName}</b> details sucessfully changed.`,
-                      true,
-                      "#editUserModal"
-                    );
-                    renderPersonnel();
-                  } else {
-                    messageModal(
-                      `Error!`,
-                      `User's <b>${firstName} ${lastName}</b> details could not be changed.`,
-                      false,
-                      "#editUserModal"
-                    );
+                ajaxRequest(
+                  "./libs/php/edit.php",
+                  {
+                    id: id,
+                    type: "personnel",
+                    newFirstName: newFirstName,
+                    newLastName: newLastName,
+                    newEmail: newEmail,
+                    newDepartment: newDepartment,
+                  },
+                  (result) => {
+                    if (result["data"]) {
+                      messageModal(
+                        `User edited successfully!`,
+                        `User's <b>${firstName} ${lastName}</b> details sucessfully changed.`,
+                        true,
+                        "#editUserModal"
+                      );
+                      renderPersonnel();
+                    } else {
+                      messageModal(
+                        `Error!`,
+                        `User's <b>${firstName} ${lastName}</b> details could not be changed.`,
+                        false,
+                        "#editUserModal"
+                      );
+                    }
                   }
-                }
-              );
-            });
+                );
+              });
           }
         );
       });
@@ -308,6 +297,9 @@ function renderPersonnel(value) {
 
 // *Render Departments
 function renderDepartments(value) {
+  populateFields("populateFields.php", ".department-select", "department");
+  populateFields("populateFields.php", ".location-select", "location");
+
   ajaxRequest(
     "./libs/php/get.php",
     {
@@ -322,17 +314,19 @@ function renderDepartments(value) {
       if (result["data"]) {
         result["data"].forEach((el) => {
           $(".result").append(`
-              <div class="card">
+            <div class="card col">
               <div class="card-body ">
                   <p class="card-text">${el["name"]} </p>
-                  <button class="btn btn-danger btn-sm float-right delete" data-toggle="modal" data-target="#deleteModal" data-id=${el["id"]}>
-                    <img src="./assets/Images/delete.svg" alt="delete button" />
-                  </button>
-                  <button class="btn btn-success btn-sm float-right edit mr-1" data-toggle="modal" data-target="#editDepModal" data-id=${el["id"]}>
-                    <img src="./assets/Images/edit.svg" alt="edit button" />
-                  </button>
+                  <div class="input-group w-50 mt-1">
+                    <button class="btn btn-success btn-sm input-group-text mr-1 edit " data-toggle="modal" data-target="#editDepModal" data-id=${el["id"]}>
+                      <img src="./assets/Images/edit.svg" alt="edit button" />
+                    </button>
+                    <button class="btn btn-danger btn-sm input-group-text delete" data-toggle="modal" data-target="#deleteModal" data-id=${el["id"]}>
+                      <img src="./assets/Images/delete.svg" alt="delete button" />
+                    </button>
+                  </div>
               </div>
-              </div>
+            </div>
         `);
         });
       } else {
@@ -365,38 +359,40 @@ function renderDepartments(value) {
             departmentDom.val(department);
             locationDom.val(result["data"]["locationID"]);
 
-            $(".editDep").submit(() => {
-              const newDepartment = departmentDom.val();
-              const newLocation = locationDom.val();
+            $(".editButton")
+              .unbind()
+              .click(() => {
+                const newDepartment = departmentDom.val();
+                const newLocation = locationDom.val();
 
-              ajaxRequest(
-                "./libs/php/edit.php",
-                {
-                  id: id,
-                  type: "department",
-                  newDepartment: newDepartment,
-                  newLocation: newLocation,
-                },
-                (result) => {
-                  if (result["data"]) {
-                    messageModal(
-                      `Department edited successfully!`,
-                      `Department's <b>${department}</b> details sucessfully changed.`,
-                      true,
-                      "#editDepModal"
-                    );
-                    renderDepartments();
-                  } else {
-                    messageModal(
-                      `Error!`,
-                      `Department's <b>${department}</b> details could not be changed.`,
-                      false,
-                      "#editDepModal"
-                    );
+                ajaxRequest(
+                  "./libs/php/edit.php",
+                  {
+                    id: id,
+                    type: "department",
+                    newDepartment: newDepartment,
+                    newLocation: newLocation,
+                  },
+                  (result) => {
+                    if (result["data"]) {
+                      messageModal(
+                        `Department edited successfully!`,
+                        `Department's <b>${department}</b> details sucessfully changed.`,
+                        true,
+                        "#editDepModal"
+                      );
+                      renderDepartments();
+                    } else {
+                      messageModal(
+                        `Error!`,
+                        `Department's <b>${department}</b> details could not be changed.`,
+                        false,
+                        "#editDepModal"
+                      );
+                    }
                   }
-                }
-              );
-            });
+                );
+              });
           }
         );
       });
@@ -497,6 +493,9 @@ function renderDepartments(value) {
 
 // *Render Locations
 function renderLocations(value) {
+  populateFields("populateFields.php", ".department-select", "department");
+  populateFields("populateFields.php", ".location-select", "location");
+
   ajaxRequest(
     "./libs/php/get.php",
     {
@@ -511,17 +510,19 @@ function renderLocations(value) {
       if (result["data"]) {
         result["data"].forEach((el) => {
           $(".result").append(`
-              <div class="card">
+            <div class="card col">
               <div class="card-body ">
                   <p class="card-text">${el["name"]} </p>
-                  <button class="btn btn-danger btn-sm float-right removeLoc " data-toggle="modal" data-target="#deleteModal" data-id=${el["id"]}>
-                    <img src="./assets/Images/delete.svg" alt="delete button" />
-                  </button>
-                  <button class="btn btn-success btn-sm float-right mr-1 editLocButton" data-toggle="modal" data-target="#editLocModal" data-id=${el["id"]}>
-                    <img src="./assets/Images/edit.svg" alt="edit button" />
-                  </button>
+                  <div class="input-group w-50 mt-1">
+                    <button class="btn btn-success btn-sm input-group-text mr-1 edit" data-toggle="modal" data-target="#editLocModal" data-id=${el["id"]}>
+                      <img src="./assets/Images/edit.svg" alt="edit button" />
+                    </button>
+                    <button class="btn btn-danger btn-sm input-group-text delete " data-toggle="modal" data-target="#deleteModal" data-id=${el["id"]}>
+                      <img src="./assets/Images/delete.svg" alt="delete button" />
+                    </button>
+                  </div>
               </div>
-              </div>
+            </div>
         `);
         });
       } else {
@@ -533,7 +534,7 @@ function renderLocations(value) {
       }
 
       // *Edit
-      $(".editLocButton").click(function () {
+      $(".edit").click(function () {
         const id = $(this).attr("data-id");
 
         ajaxRequest(
@@ -548,42 +549,44 @@ function renderLocations(value) {
 
             locationDom.val(location);
 
-            $(".editLoc").submit(() => {
-              const newLocation = locationDom.val();
+            $(".editButton")
+              .unbind()
+              .click(() => {
+                const newLocation = locationDom.val();
 
-              ajaxRequest(
-                "./libs/php/edit.php",
-                {
-                  id: id,
-                  type: "location",
-                  newLocation: newLocation,
-                },
-                (result) => {
-                  if (result["data"]) {
-                    messageModal(
-                      `Location edited successfully!`,
-                      `Location's <b>${location}</b> details sucessfully changed.`,
-                      true,
-                      "#editLocModal"
-                    );
-                    renderLocations();
-                  } else {
-                    messageModal(
-                      `Error!`,
-                      `Location's <b>${location}</b> details could not be changed.`,
-                      false,
-                      "#editLocModal"
-                    );
+                ajaxRequest(
+                  "./libs/php/edit.php",
+                  {
+                    id: id,
+                    type: "location",
+                    newLocation: newLocation,
+                  },
+                  (result) => {
+                    if (result["data"]) {
+                      messageModal(
+                        `Location edited successfully!`,
+                        `Location's <b>${location}</b> details sucessfully changed.`,
+                        true,
+                        "#editLocModal"
+                      );
+                      renderLocations();
+                    } else {
+                      messageModal(
+                        `Error!`,
+                        `Location's <b>${location}</b> details could not be changed.`,
+                        false,
+                        "#editLocModal"
+                      );
+                    }
                   }
-                }
-              );
-            });
+                );
+              });
           }
         );
       });
 
       // *Delete
-      $(".removeLoc").click(function () {
+      $(".delete").click(function () {
         const id = $(this).attr("data-id");
 
         ajaxRequest(
