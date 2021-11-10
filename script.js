@@ -24,7 +24,7 @@ $("#searchButton").click(function () {
   } else if (select === "department") {
     value !== "" ? renderDepartments(value) : renderDepartments();
   } else if (select === "location") {
-    value !== "" ? renderDepartments(value) : renderLocations();
+    value !== "" ? renderLocations(value) : renderLocations();
   }
 });
 
